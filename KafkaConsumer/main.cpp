@@ -15,7 +15,9 @@ int main(void)
 	auto conf = Conf::create(Conf::CONF_GLOBAL);
 	auto tconf = Conf::create(Conf::CONF_TOPIC);
 
-	auto ret = conf->set(string("bootstrap.servers"), string("172.20.12.227:9092"), errstr);
+	auto ret = conf->set(string("bootstrap.servers"), string("172.20.12.233:9092"), errstr);
+	ret = conf->set(string("client.id"), string("consumer-0815"), errstr);
+	ret = conf->set(string("group.id"), string("consumer-0815-group"), errstr);
 
 	auto consumer = Consumer::create(conf, errstr);
 	if (!consumer) {
@@ -24,8 +26,11 @@ int main(void)
 	}
 	Sleep(1000);
 
-	auto topic = Topic::create(consumer, string("My-Topic"), tconf, errstr);
-	auto res = consumer->start(topic, 0, 0);
+	auto topic = Topic::create(consumer, string("Vars"), tconf, errstr);
+	auto topic2 = Topic::create(consumer, string("SessionID_0815"), tconf, errstr);
+
+	auto res = consumer->start(topic, 0, Topic::OFFSET_END);
+	res = consumer->start(topic2, 0, Topic::OFFSET_END);
 	if (res != ERR_NO_ERROR) {
 		cout << "Consumer::Start() failed!" << endl;
 		delete topic;
@@ -40,7 +45,16 @@ int main(void)
 			if (ptr != nullptr)
 			{
 				string s{ ptr };
-				cout << "Message received -- Key: " << msg->key() << " - Value: " << s << endl;
+				cout << "Message received (" << msg->len() << " bytes) in:" << msg->latency() << " ms -- Key: " << msg->key() << endl;
+			}
+		}
+		msg = consumer->consume(topic2, 0, 1000);
+		if (!msg->err()) {
+			char* ptr = static_cast<char*>(msg->payload());
+			if (ptr != nullptr)
+			{
+				string s{ ptr };
+				cout << "Message received (" << msg->len() << " bytes) in:" << msg->latency() << " ms -- Key: " << msg->key()->c_str() << endl;
 			}
 		}
 

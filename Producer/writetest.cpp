@@ -4,14 +4,14 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of iRacing.com Motorsport Simulations nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
+	* Redistributions of source code must retain the above copyright
+	  notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	  notice, this list of conditions and the following disclaimer in the
+	  documentation and/or other materials provided with the distribution.
+	* Neither the name of iRacing.com Motorsport Simulations nor the
+	  names of its contributors may be used to endorse or promote products
+	  derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -61,6 +61,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "irsdk_defines.h"
 #include "yaml_parser.h"
+#include "CProducer.h"
 
 // for timeBeginPeriod
 #pragma comment(lib, "Winmm")
@@ -114,38 +115,37 @@ FILE *openUniqueFile(const char *name, const char *ext, time_t t_time, bool asBi
 	// find an unused filename
 	do
 	{
-		if(file)
+		if (file)
 			fclose(file);
 
 		_snprintf(tstr, MAX_PATH, "%s", name);
-		tstr[MAX_PATH-1] = '\0';
+		tstr[MAX_PATH - 1] = '\0';
 
 		tm tm_time;
 		localtime_s(&tm_time, &t_time);
-		strftime(tstr+strlen(tstr), MAX_PATH-strlen(tstr), " %Y-%m-%d %H-%M-%S", &tm_time);
-		tstr[MAX_PATH-1] = '\0';
+		strftime(tstr + strlen(tstr), MAX_PATH - strlen(tstr), " %Y-%m-%d %H-%M-%S", &tm_time);
+		tstr[MAX_PATH - 1] = '\0';
 
-		if(i > 0)
+		if (i > 0)
 		{
-			_snprintf(tstr+strlen(tstr), MAX_PATH-strlen(tstr), " %02d", i, ext);
-			tstr[MAX_PATH-1] = '\0';
+			_snprintf(tstr + strlen(tstr), MAX_PATH - strlen(tstr), " %02d", i, ext);
+			tstr[MAX_PATH - 1] = '\0';
 		}
 
-		_snprintf(tstr+strlen(tstr), MAX_PATH-strlen(tstr), ".%s", ext);
-		tstr[MAX_PATH-1] = '\0';
+		_snprintf(tstr + strlen(tstr), MAX_PATH - strlen(tstr), ".%s", ext);
+		tstr[MAX_PATH - 1] = '\0';
 
 		file = fopen(tstr, "r");
-	}
-	while(file && ++i < 100);
+	} while (file && ++i < 100);
 
 	// failed to find an unused file
-	if(file)
+	if (file)
 	{
 		fclose(file);
 		return NULL;
 	}
 
-	if(asBinary)
+	if (asBinary)
 		return fopen(tstr, "wb");
 	else
 		return fopen(tstr, "w");
@@ -154,10 +154,10 @@ FILE *openUniqueFile(const char *name, const char *ext, time_t t_time, bool asBi
 void writeSessionItem(FILE *file, const char *path, const char *desc)
 {
 	const char *valstr;
-	int valstrlen; 
+	int valstrlen;
 
 	fprintf(file, desc);
-	if(parseYaml(irsdk_getSessionInfoStr(), path, &valstr, &valstrlen))
+	if (parseYaml(irsdk_getSessionInfoStr(), path, &valstr, &valstrlen))
 		fwrite(valstr, 1, valstrlen, file);
 	fprintf(file, "\n");
 }
@@ -169,7 +169,7 @@ long int fileReserveSpace(FILE *file)
 	long int pos = ftell(file);
 
 	int count = reserveCount;
-	while(count--)
+	while (count--)
 		fputc(' ', file);
 	fputs("\n", file);
 
@@ -200,7 +200,7 @@ void fileWriteReservedFloat(FILE *file, long int pos, double value)
 // log header to ibt binary format
 void logHeaderToIBT(const irsdk_header *header, FILE *file, time_t t_time)
 {
-	if(header && file)
+	if (header && file)
 	{
 		int offset = 0;
 
@@ -231,7 +231,7 @@ void logHeaderToIBT(const irsdk_header *header, FILE *file, time_t t_time)
 		fwrite(irsdk_getVarHeaderPtr(), 1, g_diskHeader.numVars * sizeof(irsdk_varHeader), file);
 		fwrite(irsdk_getSessionInfoStr(), 1, g_diskHeader.sessionInfoLen, file);
 
-		if(ftell(file) != g_diskHeader.varBuf[0].bufOffset)
+		if (ftell(file) != g_diskHeader.varBuf[0].bufOffset)
 			printf("ERROR: file pointer mismach: %d != %d\n", ftell(file), g_diskHeader.varBuf[0].bufOffset);
 	}
 }
@@ -239,32 +239,32 @@ void logHeaderToIBT(const irsdk_header *header, FILE *file, time_t t_time)
 void logDataToIBT(const irsdk_header *header, const char *data, FILE *file)
 {
 	// write data to disk, and update irsdk_diskSubHeader in memory
-	if(header && data && file)
+	if (header && data && file)
 	{
 		fwrite(data, 1, g_diskHeader.bufLen, file);
 		g_diskSubHeader.sessionRecordCount++;
 
-		if(g_sessionTimeOffset >= 0)
+		if (g_sessionTimeOffset >= 0)
 		{
-			double time = *((double *)(data+g_sessionTimeOffset));
-			if(g_diskSubHeader.sessionRecordCount == 1)
+			double time = *((double *)(data + g_sessionTimeOffset));
+			if (g_diskSubHeader.sessionRecordCount == 1)
 			{
 				g_diskSubHeader.sessionStartTime = time;
 				g_diskSubHeader.sessionEndTime = time;
 			}
 
-			if(g_diskSubHeader.sessionEndTime < time)
+			if (g_diskSubHeader.sessionEndTime < time)
 				g_diskSubHeader.sessionEndTime = time;
 		}
 
-		if(g_lapIndexOffset >= 0)
+		if (g_lapIndexOffset >= 0)
 		{
-			int lap = *((int *)(data+g_lapIndexOffset));
+			int lap = *((int *)(data + g_lapIndexOffset));
 
-			if(g_diskSubHeader.sessionRecordCount == 1)
-				g_diskLastLap = lap-1;
+			if (g_diskSubHeader.sessionRecordCount == 1)
+				g_diskLastLap = lap - 1;
 
-			if(g_diskLastLap < lap)
+			if (g_diskLastLap < lap)
 			{
 				g_diskSubHeader.sessionLapCount++;
 				g_diskLastLap = lap;
@@ -275,7 +275,7 @@ void logDataToIBT(const irsdk_header *header, const char *data, FILE *file)
 
 void logCloseIBT(FILE *file)
 {
-	if(file)
+	if (file)
 	{
 		fseek(file, g_diskSubHeaderOffset, SEEK_SET);
 		fwrite(&g_diskSubHeader, 1, sizeof(g_diskSubHeader), file);
@@ -285,17 +285,17 @@ void logCloseIBT(FILE *file)
 // dump data in CSV format
 void logHeaderToCSV(const irsdk_header *header, FILE *file, time_t t_time)
 {
-	if(header && file)
+	if (header && file)
 	{
 		// remove trailing ... from string
 		const char *sessionStr = irsdk_getSessionInfoStr();
 		int len = strlen(sessionStr);
 		const char *pStr = strstr(sessionStr, "...");
-		if(pStr)
+		if (pStr)
 			len = pStr - sessionStr;
 
 		// and write the whole thing out
-		fwrite(sessionStr, 1, len,  file);
+		fwrite(sessionStr, 1, len, file);
 
 		// reserve space for entrys that will be filled in later
 		fprintf(file, "SessionLogInfo:\n");
@@ -305,7 +305,7 @@ void logHeaderToCSV(const irsdk_header *header, FILE *file, time_t t_time)
 		tm tm_time;
 		localtime_s(&tm_time, &t_time);
 		strftime(tstr, 512, " %Y-%m-%d %H:%M:%S", &tm_time);
-		tstr[512-1] = '\0';
+		tstr[512 - 1] = '\0';
 		fprintf(file, " SessionStartDate: %s\n", tstr);
 
 		fprintf(file, " SessionStartTime: ");
@@ -328,17 +328,17 @@ void logHeaderToCSV(const irsdk_header *header, FILE *file, time_t t_time)
 		fprintf(file, "...\n");
 
 		// dump the var names
-		for(int i=0; i<header->numVars; i++)
+		for (int i = 0; i < header->numVars; i++)
 		{
 			const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(i);
 			int count = (rec->type == irsdk_char) ? 1 : rec->count;
 
-			for(int j=0; j<count; j++)
+			for (int j = 0; j < count; j++)
 			{
-				if((i+j) > 0)
+				if ((i + j) > 0)
 					fputs(", ", file);
 
-				if(count>1)
+				if (count > 1)
 					fprintf(file, "%s_%02d", rec->name, j);
 				else
 					fputs(rec->name, file);
@@ -347,14 +347,14 @@ void logHeaderToCSV(const irsdk_header *header, FILE *file, time_t t_time)
 		fprintf(file, "\n");
 
 		// dump the var descriptions
-		for(int i=0; i<header->numVars; i++)
+		for (int i = 0; i < header->numVars; i++)
 		{
 			const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(i);
 			int count = (rec->type == irsdk_char) ? 1 : rec->count;
 
-			for(int j=0; j<count; j++)
+			for (int j = 0; j < count; j++)
 			{
-				if((i+j) > 0)
+				if ((i + j) > 0)
 					fputs(", ", file);
 
 				fputs(rec->desc, file);
@@ -363,14 +363,14 @@ void logHeaderToCSV(const irsdk_header *header, FILE *file, time_t t_time)
 		fprintf(file, "\n");
 
 		// dump the var units
-		for(int i=0; i<header->numVars; i++)
+		for (int i = 0; i < header->numVars; i++)
 		{
 			const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(i);
 			int count = (rec->type == irsdk_char) ? 1 : rec->count;
 
-			for(int j=0; j<count; j++)
+			for (int j = 0; j < count; j++)
 			{
-				if((i+j) > 0)
+				if ((i + j) > 0)
 					fputs(", ", file);
 
 				fputs(rec->unit, file);
@@ -379,17 +379,17 @@ void logHeaderToCSV(const irsdk_header *header, FILE *file, time_t t_time)
 		fprintf(file, "\n");
 
 		// dump the var data type
-		for(int i=0; i<header->numVars; i++)
+		for (int i = 0; i < header->numVars; i++)
 		{
 			const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(i);
 			int count = (rec->type == irsdk_char) ? 1 : rec->count;
 
-			for(int j=0; j<count; j++)
+			for (int j = 0; j < count; j++)
 			{
-				if((i+j) > 0)
+				if ((i + j) > 0)
 					fputs(", ", file);
 
-				switch(rec->type)
+				switch (rec->type)
 				{
 				case irsdk_char: fputs("string", file); break;
 				case irsdk_bool: fputs("boolean", file); break;
@@ -407,10 +407,10 @@ void logHeaderToCSV(const irsdk_header *header, FILE *file, time_t t_time)
 
 void logStateToFile(time_t t_time)
 {
-	if(irsdk_getSessionInfoStr())
+	if (irsdk_getSessionInfoStr())
 	{
 		FILE *file = openUniqueFile("irsdk_session", "txt", t_time, false);
-		if(file)
+		if (file)
 		{
 			// dump session information to disk
 			fputs(irsdk_getSessionInfoStr(), file);
@@ -421,59 +421,59 @@ void logStateToFile(time_t t_time)
 
 void logDataToCSV(const irsdk_header *header, const char *data, FILE *file)
 {
-	if(header && data && file)
+	if (header && data && file)
 	{
-		for(int i=0; i<header->numVars; i++)
+		for (int i = 0; i < header->numVars; i++)
 		{
 			const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(i);
 			int count = (rec->type == irsdk_char) ? 1 : rec->count;
 
-			for(int j=0; j<count; j++)
+			for (int j = 0; j < count; j++)
 			{
-				if((i+j) > 0)
+				if ((i + j) > 0)
 					fputs(", ", file);
 
 				// write each entry out
-				switch(rec->type)
+				switch (rec->type)
 				{
 				case irsdk_char:
-					fprintf(file, "%s", (char *)(data+rec->offset) ); break;
+					fprintf(file, "%s", (char *)(data + rec->offset)); break;
 				case irsdk_bool:
-					fprintf(file, "%d", ((bool *)(data+rec->offset))[j]); break;
+					fprintf(file, "%d", ((bool *)(data + rec->offset))[j]); break;
 				case irsdk_int:
-					fprintf(file, "%d", ((int *)(data+rec->offset))[j]); break;
+					fprintf(file, "%d", ((int *)(data + rec->offset))[j]); break;
 				case irsdk_bitField:
-					fprintf(file, "%d", ((int *)(data+rec->offset))[j]); break;
+					fprintf(file, "%d", ((int *)(data + rec->offset))[j]); break;
 				case irsdk_float:
-					fprintf(file, "%g", ((float *)(data+rec->offset))[j]); break;
+					fprintf(file, "%g", ((float *)(data + rec->offset))[j]); break;
 				case irsdk_double:
-					fprintf(file, "%g", ((double *)(data+rec->offset))[j]); break;
+					fprintf(file, "%g", ((double *)(data + rec->offset))[j]); break;
 				}
 			}
 		}
 		fprintf(file, "\n");
 
 		// update our session counters
-		if(g_sessionTimeOffset >= 0)
+		if (g_sessionTimeOffset >= 0)
 		{
-			double time = *((double *)(data+g_sessionTimeOffset));
-			if(startTime < 0.0)
+			double time = *((double *)(data + g_sessionTimeOffset));
+			if (startTime < 0.0)
 			{
 				startTime = time;
 				endTime = time;
 				fileWriteReservedFloat(file, startTimeOffset, startTime); // move these to close?
 				fileWriteReservedFloat(file, endTimeOffset, endTime);
 			}
-			if(endTime < time)
+			if (endTime < time)
 			{
 				endTime = time;
 				fileWriteReservedFloat(file, endTimeOffset, endTime);
 			}
 		}
-		if(g_lapIndexOffset >= 0)
+		if (g_lapIndexOffset >= 0)
 		{
-			int lap = *((int *)(data+g_lapIndexOffset));
-			if(lastLap < lap)
+			int lap = *((int *)(data + g_lapIndexOffset));
+			if (lastLap < lap)
 			{
 				lapCount++;
 				lastLap = lap;
@@ -489,7 +489,7 @@ void logDataToCSV(const irsdk_header *header, const char *data, FILE *file)
 // dump data to display, for debugging
 void logHeaderToDisplay(const irsdk_header *header)
 {
-	if(header)
+	if (header)
 	{
 		printf("\n\nSession Info String:\n\n");
 
@@ -497,7 +497,7 @@ void logHeaderToDisplay(const irsdk_header *header)
 		puts(irsdk_getSessionInfoStr());
 
 		printf("\n\nVariable Headers:\n\n");
-		for(int i=0; i<header->numVars; i++)
+		for (int i = 0; i < header->numVars; i++)
 		{
 			const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(i);
 			printf("%s, %s, %s\n", rec->name, rec->desc, rec->unit);
@@ -508,9 +508,9 @@ void logHeaderToDisplay(const irsdk_header *header)
 
 void logDataToDisplay(const irsdk_header *header, const char *data)
 {
-	if(header && data)
+	if (header && data)
 	{
-		for(int i=0; i<header->numVars; i++)
+		for (int i = 0; i < header->numVars; i++)
 		{
 			const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(i);
 
@@ -519,36 +519,36 @@ void logDataToDisplay(const irsdk_header *header, const char *data)
 			// only dump the first 4 entrys in an array to save space
 			// for now ony carsTrkPct and carsTrkLoc output more than 4 entrys
 			int count = 1;
-			if(rec->type != irsdk_char)
+			if (rec->type != irsdk_char)
 				count = min(4, rec->count);
 
-			for(int j=0; j<count; j++)
+			for (int j = 0; j < count; j++)
 			{
-				switch(rec->type)
+				switch (rec->type)
 				{
 				case irsdk_char:
-					printf("%s", (char *)(data+rec->offset) ); break;
+					printf("%s", (char *)(data + rec->offset)); break;
 				case irsdk_bool:
-					printf("%d", ((bool *)(data+rec->offset))[j] ); break;
+					printf("%d", ((bool *)(data + rec->offset))[j]); break;
 				case irsdk_int:
-					printf("%d", ((int *)(data+rec->offset))[j] ); break;
+					printf("%d", ((int *)(data + rec->offset))[j]); break;
 				case irsdk_bitField:
-					printf("0x%08x", ((int *)(data+rec->offset))[j] ); break;
+					printf("0x%08x", ((int *)(data + rec->offset))[j]); break;
 				case irsdk_float:
-					printf("%0.2f", ((float *)(data+rec->offset))[j] ); break;
+					printf("%0.2f", ((float *)(data + rec->offset))[j]); break;
 				case irsdk_double:
-					printf("%0.2f", ((double *)(data+rec->offset))[j] ); break;
+					printf("%0.2f", ((double *)(data + rec->offset))[j]); break;
 				}
 
-				if(j+1 < count)
+				if (j + 1 < count)
 					printf("; ");
 			}
-			if(rec->type != irsdk_char && count < rec->count)
+			if (rec->type != irsdk_char && count < rec->count)
 				printf("; ...");
 
 			printf("]");
 
-			if((i+1) < header->numVars)
+			if ((i + 1) < header->numVars)
 				printf(", ");
 		}
 		printf("\n\n");
@@ -557,7 +557,7 @@ void logDataToDisplay(const irsdk_header *header, const char *data)
 
 void initData(const irsdk_header *header, char* &data, int &nData)
 {
-	if(data) delete [] data;
+	if (data) delete[] data;
 	nData = header->bufLen;
 	data = new char[nData];
 
@@ -579,10 +579,10 @@ bool canLogToFile(const irsdk_header *header, const char *data)
 {
 	(void)header;
 	(void)data;
-	return 
+	return
 #ifdef LOG_IN_CAR_ONLY
 		// only log if driver in car...
-		(g_playerInCarOffset < 0 || *((bool *)(data+g_playerInCarOffset)));
+		(g_playerInCarOffset < 0 || *((bool *)(data + g_playerInCarOffset)));
 #else 
 		true;
 #endif
@@ -598,7 +598,7 @@ bool open_file(FILE* &file, time_t &t_time)
 	file = openUniqueFile("irsdk_session", "ibt", t_time, true);
 #endif
 
-	if(file)
+	if (file)
 	{
 		printf("Session begin.\n\n");
 		return true;
@@ -609,7 +609,7 @@ bool open_file(FILE* &file, time_t &t_time)
 void close_file(FILE* &file, time_t t_time)
 {
 	// if disconnected close file
-	if(file)
+	if (file)
 	{
 
 #ifndef LOG_TO_CSV
@@ -619,7 +619,7 @@ void close_file(FILE* &file, time_t t_time)
 		logStateToFile(t_time);
 
 		fclose(file);
-		file= NULL;
+		file = NULL;
 
 		printf("Session ended.\n\n");
 	}
@@ -629,11 +629,11 @@ void end_session(bool shutdown)
 {
 	close_file(g_file, g_ttime);
 
-	if(g_data)
+	if (g_data)
 		delete[] g_data;
 	g_data = NULL;
 
-	if(shutdown)
+	if (shutdown)
 	{
 		irsdk_shutdown();
 		timeEndPeriod(1);
@@ -641,7 +641,7 @@ void end_session(bool shutdown)
 }
 
 // exited with ctrl-c
-void ex_program(int sig) 
+void ex_program(int sig)
 {
 	(void)sig;
 
@@ -669,18 +669,27 @@ int main()
 	timeBeginPeriod(1);
 	g_data = NULL;
 	g_nData = 0;
-	
-	while(!_kbhit())
+
+	//KafkaProducer::CProducer prod{};
+//	try {
+		KafkaProducer::CProducer prod{ "172.20.12.233:9092", std::vector<std::string>{"Vars","SessionID_0815"} };
+//	}
+	//catch (std::exception& ex) {
+	//	fprintf(stderr, " -- %s\n", ex.what());
+	//	exit(-1);
+	//}
+
+	while (!_kbhit())
 	{
 		// wait for new data and copy it into the g_data buffer, if g_data is not null
-		if(irsdk_waitForDataReady(TIMEOUT, g_data))
+		if (irsdk_waitForDataReady(TIMEOUT, g_data))
 		{
 			const irsdk_header *pHeader = irsdk_getHeader();
-			if(pHeader)
+			if (pHeader)
 			{
 
 				// if header changes size, assume a new connection
-				if(!g_data || g_nData != pHeader->bufLen)
+				if (!g_data || g_nData != pHeader->bufLen)
 				{
 					// realocate our g_data buffer to fit, and lookup some data offsets
 					initData(pHeader, g_data, g_nData);
@@ -689,22 +698,22 @@ int main()
 					logHeaderToDisplay(pHeader);
 #endif
 				}
-				else if(g_data)
+				else if (g_data)
 				{
-					if(canLogToFile(pHeader, g_data))
+					if (canLogToFile(pHeader, g_data))
 					{
 						// open file if first time
-						if(!g_file && open_file(g_file, g_ttime))
+						if (!g_file && open_file(g_file, g_ttime))
 						{
 #ifdef LOG_TO_CSV
-								logHeaderToCSV(pHeader, g_file, g_ttime);
+							logHeaderToCSV(pHeader, g_file, g_ttime);
 #else
-								logHeaderToIBT(pHeader, g_file, g_ttime);
+							logHeaderToIBT(pHeader, g_file, g_ttime);
 #endif
 						}
 
 						// and log data to file
-						if(g_file)
+						if (g_file)
 						{
 #ifdef LOG_TO_CSV
 							logDataToCSV(pHeader, g_data, g_file);
@@ -712,13 +721,15 @@ int main()
 							logDataToIBT(pHeader, g_data, g_file);
 #endif
 						}
+
+						prod.Produce("SessionID_0815", "DataKey", g_data, g_nData);
 					}
 					else
 						close_file(g_file, g_ttime);
 
 #ifdef LOG_TO_DISPLAY
 					static int ct = 0;
-					if(ct++ % 100 == 0)
+					if (ct++ % 100 == 0)
 					{
 						logDataToDisplay(pHeader, g_data);
 					}
@@ -727,7 +738,7 @@ int main()
 			}
 		}
 		// session ended
-		else if(!irsdk_isConnected())
+		else if (!irsdk_isConnected())
 			end_session(false);
 	}
 

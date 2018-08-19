@@ -37,7 +37,7 @@ int main(void)
 
 	string errstr;
 	auto conf = Conf::create(Conf::ConfType::CONF_GLOBAL);
-	auto ret = conf->set(string("bootstrap.servers"), string("172.20.12.227:9092"), errstr);
+	auto ret = conf->set(string("bootstrap.servers"), string("172.20.12.233:9092"), errstr);
 	ret = conf->set("event_cb", &errCb, errstr);
 	ret = conf->set("dr_cb", &dr_cb, errstr);
 
@@ -54,7 +54,7 @@ int main(void)
 		cout << s << endl;
 	}
 
-	auto res = prod->produce(string("My-Topic"), 0, Producer::RK_MSG_COPY, (void*)"Hello Kafka World!", strlen("Hello Kafka World!")+1, NULL, 0, 0, NULL);
+	auto res = prod->produce(string("Topic-2"), 0, Producer::RK_MSG_COPY, (void*)"Hello Kafka World!", strlen("Hello Kafka World!")+1, NULL, 0, 0, NULL);
 	if (res != ERR_NO_ERROR) {
 		cout << "Produce failed: " << err2str(res) << endl;
 

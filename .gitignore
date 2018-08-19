@@ -5,3 +5,13 @@
 /.vs/DataStreaming/v15
 /DataSimulator/x64/Debug
 /Producer/x64/Debug
+/Consumer/x64/Debug/Consumer.tlog
+/KafkaConsumer/x64/Debug
+/KafkaProducer/x64/Debug
+/x64/Debug
+/Producer/irsdk_session 2018-08-20 01-06-15.csv
+/Producer/irsdk_session 2018-08-20 01-05-22.csv
+/Producer/irsdk_session 2018-08-20 01-05-06.csv
+/Producer/irsdk_session 2018-08-20 01-04-45.csv
+/Producer/irsdk_session 2018-08-20 01-02-50.csv
+/Producer/irsdk_session 2018-08-20 01-01-12.csv
