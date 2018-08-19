@@ -30,13 +30,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------
 
 // Uncomment to log data to display
-//#define LOG_TO_DISPLAY
+#define LOG_TO_DISPLAY
 
 // Uncomment to log to ascii CSV format instead of binary IBT format
-//#define LOG_TO_CSV
+#define LOG_TO_CSV
 
 // Uncomment to log only when driver in car
 //#define LOG_IN_CAR_ONLY
+
+#define LOG_HEADER_TO_DISPLAY
 
 //------
 #define MIN_WIN_VER 0x0501

@@ -18,10 +18,26 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\irsdk_diskclient.cpp" />
+    <ClCompile Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\irsdk_server\irsdk_diskserver.cpp" />
+    <ClCompile Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\irsdk_server\irsdk_memserver.cpp" />
+    <ClCompile Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\irsdk_server\irsdk_server.cpp" />
+    <ClCompile Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\irsdk_utils.cpp" />
+    <ClCompile Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\yaml_parser.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\irsdk_diskclient.h" />
+    <ClInclude Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\irsdk_server\irsdk_diskserver.h" />
+    <ClInclude Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\irsdk_server\irsdk_memserver.h" />
+    <ClInclude Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\irsdk_server\irsdk_server.h" />
+    <ClInclude Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\yaml_parser.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{D3DD1B02-C2D7-4262-A552-913382297D8F}</ProjectGuid>
-    <RootNamespace>Consumer</RootNamespace>
+    <ProjectGuid>{4F77CD11-F69F-4AF8-BFD0-7ECCB500C703}</ProjectGuid>
+    <RootNamespace>DataSimulator</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,15 +86,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(IRSDK_INC_PATH)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -114,9 +131,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="writetest.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
