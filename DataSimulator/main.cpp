@@ -24,8 +24,13 @@ int main(int arc, char**argv)
 
 	signal(SIGINT, sigint_handler);
 
+	int sessionNum = 0x12345;
+	int playerCarIdx = 0;
 	irsdkServer::instance()->regVar((const char*)"SessionTime", &g_SessionTime, irsdk_VarType::irsdk_double, 1, (const char*)"Time elapsed since session start", (const char*)"s", IRSDK_LOG_ALL);
 	irsdkServer::instance()->regVar((const char*)"Lap", &g_Lap, irsdk_VarType::irsdk_int, 1, (const char*)"current lap", (const char*)"", IRSDK_LOG_ALL);
+	irsdkServer::instance()->regVar((const char*)"SessionNum", &sessionNum, irsdk_VarType::irsdk_int, 1, (const char*)"Session ID", (const char*)"", IRSDK_LOG_LIVE);
+	irsdkServer::instance()->regVar((const char*)"PlayerCarIdx", &playerCarIdx, irsdk_VarType::irsdk_int, 1, (const char*)"Player Car Index", (const char*)"", IRSDK_LOG_LIVE);
+
 	g_Lap = 1;
 	g_SessionTime = 0;
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#define LIBRDKAFKACPP_EXPORTS 
 #include <librdkafka/rdkafkacpp.h>
 
 namespace KafkaProducer {

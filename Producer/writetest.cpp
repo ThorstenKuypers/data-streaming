@@ -58,6 +58,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <conio.h>
 #include <signal.h>
 #include <time.h>
+#include <sstream>
 
 #include "irsdk_defines.h"
 #include "yaml_parser.h"
@@ -670,14 +671,17 @@ int main()
 	g_data = NULL;
 	g_nData = 0;
 
-	//KafkaProducer::CProducer prod{};
-//	try {
-		KafkaProducer::CProducer prod{ "172.20.12.233:9092", std::vector<std::string>{"Vars","SessionID_0815"} };
-//	}
-	//catch (std::exception& ex) {
-	//	fprintf(stderr, " -- %s\n", ex.what());
-	//	exit(-1);
-	//}
+	std::unique_ptr<KafkaProducer::CProducer> prod;
+	try {
+		prod = std::make_unique<KafkaProducer::CProducer>( "172.20.12.233:9092", std::vector<std::string>{"Vars","SessionID_0815"});
+	}
+	catch (std::exception& ex) {
+		fprintf(stderr, " -- %s\n", ex.what());
+		exit(-1);
+	}
+	catch (...) {
+		int x = 0;
+	}
 
 	while (!_kbhit())
 	{
@@ -722,7 +726,13 @@ int main()
 #endif
 						}
 
-						prod.Produce("SessionID_0815", "DataKey", g_data, g_nData);
+						// as long as no manager service for kafka is available write all data to
+						// single topic with unique key for each team
+#define UNIQUE_TEAM_KEY 0x123456
+
+						std::ostringstream ss;
+						ss << UNIQUE_TEAM_KEY;
+						prod->Produce("Data-Topic", ss.str(), g_data, g_nData);
 					}
 					else
 						close_file(g_file, g_ttime);

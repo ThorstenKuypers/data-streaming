@@ -18,5 +18,11 @@
     <ClCompile Include="writetest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\irsdk_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Users\thorsten\Downloads\irsdk 1.12\irsdk\yaml_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
